@@ -1,0 +1,112 @@
+[
+  {
+    "issueTypes": {
+      "improperParking": false,
+      "damageMalfunction": true,
+      "safetyConcerns": false,
+      "other": false,
+      "otherText": ""
+    },
+    "issueDescription": "Bird scooter handlebar snapped in half",
+    "incidentDate": "2026-11-06",
+    "incidentTime": "12:00",
+    "locationDetails": "Jasper Ave and 109 St NW",
+    "identifyingColours": "Bird - Blue or Black E-Scooters and Blue and Black E-Bikes",
+    "vehicleIdNumber": "",
+    "attachment": null,
+    "id": "RPT-2026-7173",
+    "trackingCode": "EDM-ESC-7173",
+    "createdAt": "2026-11-06T00:28:16.604Z",
+    "updatedAt": "2026-11-06T00:28:16.604Z",
+    "status": "Submitted",
+    "operatorNotificationSent": false
+  },
+  {
+    "issueTypes": {
+      "improperParking": true,
+      "damageMalfunction": false,
+      "safetyConcerns": false,
+      "other": false
+    },
+    "issueDescription": "Test e-scooter blocking pedestrian access ramp outside City Centre.",
+    "incidentDate": "2026-11-05",
+    "incidentTime": "16:10",
+    "locationDetails": "102 Ave and 100 St NW",
+    "identifyingColours": "Lime - White and Green E-Scooters and E-Bikes",
+    "vehicleIdNumber": "LM-77123",
+    "id": "RPT-2026-9557",
+    "trackingCode": "EDM-ESC-9557",
+    "createdAt": "2026-11-06T00:11:53.464Z",
+    "updatedAt": "2026-11-06T00:11:53.464Z",
+    "status": "Submitted",
+    "operatorNotificationSent": false
+  },
+  {
+    "id": "RPT-2026-1042",
+    "trackingCode": "EDM-ESC-1042",
+    "createdAt": "2026-11-04T14:32:00.000Z",
+    "updatedAt": "2026-11-04T15:10:00.000Z",
+    "status": "Dispatched to Operator",
+    "issueTypes": {
+      "improperParking": true,
+      "damageMalfunction": false,
+      "safetyConcerns": true,
+      "other": false
+    },
+    "issueDescription": "Two e-scooters are left directly across the curb ramp at the pedestrian crosswalk, obstructing wheelchair and stroller accessibility.",
+    "incidentDate": "2026-11-04",
+    "incidentTime": "14:15",
+    "locationDetails": "Corner of 104 St NW & Jasper Ave, southwest crosswalk ramp",
+    "gpsCoordinates": {
+      "latitude": 53.5411,
+      "longitude": -113.4989,
+      "accuracy": 8
+    },
+    "identifyingColours": "Lime - White and Green E-Scooters and E-Bikes",
+    "vehicleIdNumber": "LM-94821",
+    "internalNotes": "Dispatched notification ticket to Lime Operations team for 2-hour priority relocation SLA.",
+    "operatorNotificationSent": true
+  },
+  {
+    "id": "RPT-2026-1039",
+    "trackingCode": "EDM-ESC-1039",
+    "createdAt": "2026-11-04T09:12:00.000Z",
+    "updatedAt": "2026-11-04T11:45:00.000Z",
+    "status": "Under Review",
+    "issueTypes": {
+      "improperParking": false,
+      "damageMalfunction": true,
+      "safetyConcerns": false,
+      "other": false
+    },
+    "issueDescription": "E-bike has a collapsed kickstand and damaged front handlebar grip. Parked against bike rack but leans dangerously.",
+    "incidentDate": "2026-11-04",
+    "incidentTime": "08:50",
+    "locationDetails": "Near Churchill LRT Station entrance, 99 St NW",
+    "identifyingColours": "Bird - Blue or Black E-Scooters and Blue and Black E-Bikes",
+    "vehicleIdNumber": "BRD-44109",
+    "internalNotes": "Maintenance flagged for damaged handlebar assembly.",
+    "operatorNotificationSent": true
+  },
+  {
+    "id": "RPT-2026-1025",
+    "trackingCode": "EDM-ESC-1025",
+    "createdAt": "2026-11-03T18:22:00.000Z",
+    "updatedAt": "2026-11-03T20:00:00.000Z",
+    "status": "Resolved",
+    "issueTypes": {
+      "improperParking": true,
+      "damageMalfunction": false,
+      "safetyConcerns": false,
+      "other": false
+    },
+    "issueDescription": "E-scooter left tipped over in middle of shared bike pathway.",
+    "incidentDate": "2026-11-03",
+    "incidentTime": "18:10",
+    "locationDetails": "102 Ave bike lane near 107 St NW",
+    "identifyingColours": "Lime - White and Green E-Scooters and E-Bikes",
+    "vehicleIdNumber": "LM-31200",
+    "internalNotes": "Operator street team verified repositioning to designated corral at 19:40.",
+    "operatorNotificationSent": true
+  }
+]

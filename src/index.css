@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  /* City of Edmonton Primary Palette */
+  --coe-city-blue: #005087;      /* Primary corporate brand blue */
+  --coe-dark-blue: #193A5A;      /* Primary dark blue */
+  --coe-medium-blue: #0081BC;    /* Primary medium blue / active accent */
+  --coe-sky-blue: #B6D0E2;       /* Light blue tint */
+  --coe-light-blue: #E8F1F6;     /* Subtle blue surface */
+
+  /* City of Edmonton Secondary Palette */
+  --coe-sea-green: #008269;      /* Green accent / success */
+  --coe-green-light: #EBF7F4;
+  --coe-yellow-lime: #D97706;    /* Amber / caution */
+  --coe-red-alert: #C62828;      /* Red complement / error */
+  --coe-red-light: #FDE8E8;
+
+  /* City of Edmonton Neutrals */
+  --coe-dark-grey: #222222;      /* Primary body text */
+  --coe-charcoal: #444444;       /* Secondary labels */
+  --coe-mid-grey: #767676;       /* Subtext */
+  --coe-border-grey: #D0D7DE;    /* Input & card borders */
+  --coe-light-grey: #F3F5F7;     /* Background canvas */
+  --coe-white: #FFFFFF;
+}
+
+@layer base {
+  html {
+    font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #222222;
+    background-color: #F3F5F7;
+    color-scheme: light;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    /* Headings set in Prelo with Plus Jakarta Sans fallback per Edmonton.ca digital style guide */
+    font-family: 'Prelo', 'Plus Jakarta Sans', 'Open Sans', system-ui, sans-serif;
+    color: #193A5A;
+  }
+  
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  }
+}

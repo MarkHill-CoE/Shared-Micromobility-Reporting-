@@ -1,0 +1,10 @@
+{
+  "name": "Rental E-Scooter & E-Bike Issue Reporting",
+  "description": "Municipal issue reporting web form for rental e-scooters and e-bikes, ready for iframe embedding and persistent GCP cloud storage.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
