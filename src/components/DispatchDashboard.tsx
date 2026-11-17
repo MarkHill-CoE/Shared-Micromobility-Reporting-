@@ -191,6 +191,16 @@ export const DispatchDashboard: React.FC<DispatchDashboardProps> = ({ onBackToFo
           </a>
 
           <a
+            href="/api/export?format=sap-crm-json"
+            download
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#B6D0E2] bg-[#E8F1F6] px-3 py-2 text-xs font-semibold text-[#005087] hover:bg-[#D0E0EA] shadow-xs transition-colors"
+            title="Export all requests mapped to SAP CRM Service Request (BUS2000223) JSON"
+          >
+            <FileCode className="h-3.5 w-3.5 text-[#005087]" />
+            <span>SAP CRM JSON</span>
+          </a>
+
+          <a
             href="/api/export?format=csv"
             download
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition-colors"

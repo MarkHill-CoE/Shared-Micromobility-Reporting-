@@ -11,7 +11,20 @@ import {
   Terminal,
   Layers,
   BookOpen,
+  ArrowRightLeft,
+  Database,
 } from 'lucide-react';
+
+interface SapCrmMappedRow {
+  open311Source: string;
+  open311Field: string;
+  sapCrmStructure: string;
+  sapCrmField: string;
+  sapDataType: string;
+  mappingRule: string;
+  open311Value: string;
+  sapCrmValue: string;
+}
 
 interface Open311InspectorModalProps {
   report: IssueReport | null;
@@ -24,14 +37,23 @@ export const Open311InspectorModal: React.FC<Open311InspectorModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState<'json' | 'xml' | 'definition' | 'endpoints'>('json');
+  const [activeTab, setActiveTab] = useState<'json' | 'xml' | 'sapcrm' | 'definition' | 'endpoints'>('json');
+  const [sapCrmView, setSapCrmView] = useState<'table' | 'json' | 'xml'>('table');
   const [copied, setCopied] = useState<string | null>(null);
   const [inspectorData, setInspectorData] = useState<{
     open311_json?: any;
     open311_xml?: string;
     open311_service_definition_xml?: string;
     open311_service_definition_json?: any;
-    endpoints?: { request_xml: string; request_json: string };
+    sap_crm_json?: any;
+    sap_crm_xml?: string;
+    sap_crm_mapping?: SapCrmMappedRow[];
+    endpoints?: {
+      request_xml: string;
+      request_json: string;
+      sap_crm_json?: string;
+      sap_crm_xml?: string;
+    };
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,6 +82,12 @@ export const Open311InspectorModal: React.FC<Open311InspectorModalProps> = ({
     : '// Loading Open311 JSON...';
 
   const xmlString = inspectorData?.open311_xml || '<!-- Loading Open311 XML... -->';
+
+  const sapCrmJsonString = inspectorData?.sap_crm_json
+    ? JSON.stringify(inspectorData.sap_crm_json, null, 2)
+    : '// Loading SAP CRM JSON...';
+
+  const sapCrmXmlString = inspectorData?.sap_crm_xml || '<!-- Loading SAP CRM XML... -->';
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -144,6 +172,19 @@ export const Open311InspectorModal: React.FC<Open311InspectorModalProps> = ({
             >
               <Code2 className="h-3.5 w-3.5 text-blue-600" />
               <span>Open311 XML</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('sapcrm')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                activeTab === 'sapcrm'
+                  ? 'bg-white text-[#005087] shadow-xs border border-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <ArrowRightLeft className="h-3.5 w-3.5 text-[#0081BC]" />
+              <span>SAP CRM Mapping</span>
             </button>
 
             <button
@@ -246,8 +287,53 @@ export const Open311InspectorModal: React.FC<Open311InspectorModalProps> = ({
               </>
             )}
 
+            {activeTab === 'sapcrm' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    copyToClipboard(
+                      sapCrmView === 'xml' ? sapCrmXmlString : sapCrmJsonString,
+                      'sapcrm'
+                    )
+                  }
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+                >
+                  {copied === 'sapcrm' ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-600" />
+                      <span className="text-emerald-700">Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3 text-slate-500" />
+                      <span>Copy {sapCrmView === 'xml' ? 'XML' : 'JSON'}</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    downloadFile(
+                      sapCrmView === 'xml' ? sapCrmXmlString : sapCrmJsonString,
+                      `sap-crm-${trackingCode}.${sapCrmView === 'xml' ? 'xml' : 'json'}`,
+                      sapCrmView === 'xml' ? 'text/xml' : 'application/json'
+                    )
+                  }
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+                >
+                  <Download className="h-3 w-3 text-slate-500" />
+                  <span>Download .{sapCrmView === 'xml' ? 'xml' : 'json'}</span>
+                </button>
+              </>
+            )}
+
             <a
-              href={`/open311/v2/requests/${trackingCode}.${activeTab === 'xml' ? 'xml' : 'json'}`}
+              href={
+                activeTab === 'sapcrm'
+                  ? `/api/sap-crm/requests/${trackingCode}.${sapCrmView === 'xml' ? 'xml' : 'json'}`
+                  : `/open311/v2/requests/${trackingCode}.${activeTab === 'xml' ? 'xml' : 'json'}`
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 underline ml-1"
@@ -272,6 +358,94 @@ export const Open311InspectorModal: React.FC<Open311InspectorModalProps> = ({
             <pre className="whitespace-pre-wrap break-all text-blue-300 selection:bg-blue-900 selection:text-white">
               {xmlString}
             </pre>
+          ) : activeTab === 'sapcrm' ? (
+            <div className="space-y-4 font-sans text-xs text-slate-200">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-slate-900 p-3.5 border border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <Database className="h-4 w-4 text-sky-400 shrink-0" />
+                  <div>
+                    <div className="font-bold text-white">
+                      Open311 GeoReport v2 → SAP CRM Service Request (BUS2000223 / Z311)
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      Maps Open311 fields &amp; custom attributes to CRMD_ORDERADM_H, CRMD_SERVICE_H, CRMD_PARTNER, ADRC, SCAPPTSEG, CRMD_TEXT &amp; CRMD_CUSTOMER_H.
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-md border border-slate-800">
+                  {(['table', 'json', 'xml'] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setSapCrmView(mode)}
+                      className={`px-2.5 py-1 rounded text-[11px] font-semibold uppercase transition-colors cursor-pointer ${
+                        sapCrmView === mode
+                          ? 'bg-[#005087] text-white'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {mode === 'table' ? 'Field Matrix' : `SAP ${mode.toUpperCase()}`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {sapCrmView === 'table' ? (
+                <div className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900/70">
+                  <table className="w-full text-left text-[11px]">
+                    <thead className="bg-slate-900 text-slate-400 uppercase border-b border-slate-800">
+                      <tr>
+                        <th className="px-3 py-2.5">Open311 Field</th>
+                        <th className="px-3 py-2.5">SAP CRM Table / Field</th>
+                        <th className="px-3 py-2.5">Type</th>
+                        <th className="px-3 py-2.5">Live Open311 Value</th>
+                        <th className="px-3 py-2.5">Mapped SAP CRM Value</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/80">
+                      {(inspectorData?.sap_crm_mapping || []).map((row, idx) => (
+                        <tr key={idx} className="hover:bg-slate-900/90 align-top">
+                          <td className="px-3 py-2.5">
+                            <div className="font-mono font-semibold text-emerald-400">
+                              {row.open311Field}
+                            </div>
+                            <div className="text-[10px] text-slate-500">{row.open311Source}</div>
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <div className="font-mono font-semibold text-sky-300">
+                              {row.sapCrmStructure}
+                            </div>
+                            <div className="font-mono text-[10px] text-slate-300">
+                              {row.sapCrmField}
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5 font-mono text-slate-400 whitespace-nowrap">
+                            {row.sapDataType}
+                          </td>
+                          <td className="px-3 py-2.5 font-mono text-slate-300 max-w-[200px] break-words">
+                            {row.open311Value}
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <div className="font-mono text-amber-300 max-w-[220px] break-words">
+                              {row.sapCrmValue}
+                            </div>
+                            <div className="text-[10px] text-slate-500 mt-0.5">{row.mappingRule}</div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : sapCrmView === 'json' ? (
+                <pre className="whitespace-pre-wrap break-all font-mono text-sky-300">
+                  {sapCrmJsonString}
+                </pre>
+              ) : (
+                <pre className="whitespace-pre-wrap break-all font-mono text-amber-300">
+                  {sapCrmXmlString}
+                </pre>
+              )}
+            </div>
           ) : activeTab === 'definition' ? (
             <div className="space-y-4 text-slate-300">
               <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs font-sans">
@@ -350,6 +524,17 @@ export const Open311InspectorModal: React.FC<Open311InspectorModalProps> = ({
                 <span className="text-slate-400 text-xs block">Standard GeoReport v2 Service Discovery file.</span>
                 <div className="p-2 bg-black rounded font-mono text-[11px] text-slate-300">
                   curl -s "{currentOrigin}/open311/discovery.json"
+                </div>
+              </div>
+
+              {/* Endpoint 6: SAP CRM Mapping */}
+              <div className="rounded-lg bg-slate-900 p-3.5 border border-slate-800 space-y-1.5">
+                <span className="font-semibold text-sky-400 block font-mono">
+                  GET /api/sap-crm/mapping  |  GET /api/sap-crm/requests/{trackingCode}.json (or .xml)
+                </span>
+                <span className="text-slate-400 text-xs block">Returns canonical Open311 → SAP CRM (BUS2000223) mapping specification and transformed Service Request payloads.</span>
+                <div className="p-2 bg-black rounded font-mono text-[11px] text-slate-300">
+                  curl -s "{currentOrigin}/api/sap-crm/requests/{trackingCode}.json"
                 </div>
               </div>
             </div>

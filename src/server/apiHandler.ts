@@ -10,6 +10,13 @@ import type { IssueReportSubmission, IssueReport } from '../types/report.ts';
 import { scrubPiiText } from './piiScrubber.ts';
 import { dispatchVendorEmail } from './emailService.ts';
 import {
+  OPEN311_TO_SAP_CRM_RULES,
+  mapReportToSapCrmPayload,
+  getOpen311ToSapCrmMappedRows,
+  getSingleSapCrmXml,
+  getSapCrmListXml,
+} from './sapCrm.ts';
+import {
   JURISDICTION_ID,
   SERVICE_CODE,
   getServicesListJson,
@@ -414,11 +421,65 @@ export async function handleApiRequest(
       open311_xml: getSingleServiceRequestXml(report),
       open311_service_definition_xml: getServiceDefinitionXml(),
       open311_service_definition_json: getServiceDefinitionJson(),
+      sap_crm_json: mapReportToSapCrmPayload(report),
+      sap_crm_xml: getSingleSapCrmXml(report),
+      sap_crm_mapping: getOpen311ToSapCrmMappedRows(report),
       endpoints: {
         request_xml: `/open311/v2/requests/${report.trackingCode || report.id}.xml`,
         request_json: `/open311/v2/requests/${report.trackingCode || report.id}.json`,
+        sap_crm_json: `/api/sap-crm/requests/${report.trackingCode || report.id}.json`,
+        sap_crm_xml: `/api/sap-crm/requests/${report.trackingCode || report.id}.xml`,
       },
     });
+    return true;
+  }
+
+  // SAP CRM Endpoints (/api/sap-crm/*)
+  if (pathname === '/api/sap-crm/mapping' && req.method === 'GET') {
+    sendJson(res, 200, {
+      success: true,
+      sourceSchema: 'Open311 GeoReport v2',
+      targetObject: 'SAP CRM Service Request (BUS2000223 / Process Type Z311)',
+      jurisdiction_id: JURISDICTION_ID,
+      service_code: SERVICE_CODE,
+      fieldCount: OPEN311_TO_SAP_CRM_RULES.length,
+      mappings: OPEN311_TO_SAP_CRM_RULES,
+    });
+    return true;
+  }
+
+  if (pathname.match(/^\/api\/sap-crm\/requests(\.(xml|json))?$/) && req.method === 'GET') {
+    const isXml = pathname.endsWith('.xml') || req.headers.accept?.includes('text/xml');
+    const reports = getAllReports();
+    if (isXml) {
+      sendXml(res, 200, getSapCrmListXml(reports));
+    } else {
+      sendJson(res, 200, reports.map(mapReportToSapCrmPayload));
+    }
+    return true;
+  }
+
+  const singleSapCrmMatch = pathname.match(/^\/api\/sap-crm\/requests\/([^/.]+)(\.(xml|json))?$/);
+  if (singleSapCrmMatch && req.method === 'GET') {
+    const id = decodeURIComponent(singleSapCrmMatch[1]);
+    const isXml = singleSapCrmMatch[3] === 'xml' || req.headers.accept?.includes('text/xml');
+    const reports = getAllReports();
+    const report = reports.find((r) => r.id === id || r.trackingCode === id);
+
+    if (!report) {
+      sendJson(res, 404, { success: false, error: 'Report not found for SAP CRM mapping' });
+      return true;
+    }
+
+    if (isXml) {
+      sendXml(res, 200, getSingleSapCrmXml(report));
+    } else {
+      sendJson(res, 200, {
+        success: true,
+        sapCrmPayload: mapReportToSapCrmPayload(report),
+        fieldMappings: getOpen311ToSapCrmMappedRows(report),
+      });
+    }
     return true;
   }
 
@@ -449,6 +510,22 @@ export async function handleApiRequest(
         `attachment; filename="open311-georeport-v2-${new Date().toISOString().slice(0, 10)}.xml"`
       );
       res.end(getServiceRequestsXml(reports));
+      return true;
+    } else if (format === 'sap-crm-json') {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="sap-crm-service-requests-${new Date().toISOString().slice(0, 10)}.json"`
+      );
+      res.end(JSON.stringify(reports.map(mapReportToSapCrmPayload), null, 2));
+      return true;
+    } else if (format === 'sap-crm-xml') {
+      res.setHeader('Content-Type', 'text/xml; charset=utf-8');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="sap-crm-service-requests-${new Date().toISOString().slice(0, 10)}.xml"`
+      );
+      res.end(getSapCrmListXml(reports));
       return true;
     } else {
       const csv = generateCsvExport();
